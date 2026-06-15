@@ -47,6 +47,9 @@ zle -N down-line-or-beginning-search
 HISTFILE=~/.zsh_history
 HISTSIZE=500000
 SAVEHIST=500000
+# 📄 Unified VS Code Code Editor Variables
+export EDITOR="code --wait"
+export VISUAL="code --wait"
 
 # Advanced shell execution adjustments
 setopt EXTENDED_HISTORY          # Write the history file in the ':start:elapsed;cmd' format.
