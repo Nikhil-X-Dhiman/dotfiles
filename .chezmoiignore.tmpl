@@ -1,18 +1,17 @@
 # ==============================================================================
-# 🧠 DYNAMIC CROSS-PLATFORM CONTEXT FILTER
+# 🧠 DYNAMIC CROSS-PLATFORM CONTEXT FILTER (TARGET-RELATIVE)
 # ==============================================================================
 
 # If the active machine is NOT Windows, completely ignore host configurations
 {{ if ne .chezmoi.os "windows" }}
 AppData/
 Documents/
-dot_wslconfig
+.wslconfig
 {{ end }}
 
-# If the active machine is NOT Linux, completely ignore shell configurations
+# If the active machine is NOT Linux, completely ignore specific shell profiles
 {{ if ne .chezmoi.os "linux" }}
-dot_zshrc
-dot_bashrc
-dot_gitconfig
-dot_zsh_plugins.txt
+.zshrc
+.bashrc
+.zsh_plugins.txt
 {{ end }}
