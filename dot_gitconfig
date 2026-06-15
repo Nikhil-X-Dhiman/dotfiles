@@ -1,0 +1,14 @@
+[user]
+	name = Nikhil Dhiman
+	email = nikhil.x.dhiman@gmail.com
+[core]
+	editor = code --wait
+[init]
+	defaultBranch = main
+[pull]
+	rebase = false
+[alias]
+	st = status
+	co = checkout
+	br = branch
+	cm = commit -m

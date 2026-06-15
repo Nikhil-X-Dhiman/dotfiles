@@ -1,0 +1,371 @@
+# ==============================================================================
+#                      🚀 CORE DEVELOPMENT ENVIRONMENT OVERVIEW
+# ==============================================================================
+# To unlock the full engineering experience of this configuration, ensure the
+# following core utilities are installed across your operating environments:
+#
+# 📋 CORE PREREQUISITES (Required for Basic Initialization):
+#   1. Antidote  - High-performance, zsh-native plugin manager.
+#                  Clone repo: git clone --depth=1 https://github.com/mattmc3/antidote.git ~/.antidote
+#   2. Starship  - Cross-shell prompt engine (Engineered with two-line layout).
+#   3. Zoxide    - Smart directory navigation engine (Smarter, predictive 'cd').
+#   4. Fastfetch - Systems information layout visualizer.
+#
+# 🛠️ THE ULTIMATE DEV EXPERIENCE TOOLKIT (Highly Recommended Additions):
+#   • fzf        - Command-line fuzzy finder. Essential for deep history lookups.
+#   • lsd / eza  - Modern replacements for 'ls' with contextual tracking and icons.
+#   • bat        - A 'cat' clone featuring syntax highlighting and git integration.
+#   • ripgrep    - ('rg') Ultra-fast text orientation engine built to query deep project files.
+#   • fd-find    - ('fd') A simple, fast, and user-friendly alternative to 'find'.
+#   • tmux / zellij - Terminal workspaces with persistent multiplexer session state.
+# ==============================================================================
+
+# ==============================================================================
+# [1] PLUGIN MANAGEMENT & CORE INTERFACE
+# ==============================================================================
+# Securely initialize Antidote without throwing errors if not yet pulled down
+if [[ -f ~/.antidote/antidote.zsh ]]; then
+    source ~/.antidote/antidote.zsh
+    antidote load
+fi
+
+# Configuration metadata for the completion systems engine
+zstyle :compinstall filename "$HOME/.zshrc"
+
+autoload -Uz compinit
+compinit -d "$HOME/.zcompdump" 2>/dev/null
+
+# Load and bind smart substring history search modules
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+
+# ==============================================================================
+# [2] SHELL ENVIRONMENT & HARDENED HISTORY CONFIGURATION
+# ==============================================================================
+HISTFILE=~/.zsh_history
+HISTSIZE=500000
+SAVEHIST=500000
+
+# Advanced shell execution adjustments
+setopt EXTENDED_HISTORY          # Write the history file in the ':start:elapsed;cmd' format.
+setopt SHARE_HISTORY             # Share history across running terminal sessions concurrently.
+setopt HIST_EXPIRE_DUPS_FIRST    # Expire a duplicate event first when trimming history.
+setopt HIST_IGNORE_DUPS          # Do not record an event that was just logged.
+setopt HIST_IGNORE_ALL_DUPS      # Delete old duplicate entries when writing new entries.
+setopt HIST_FIND_NO_DUPS         # Do not display a line previously found.
+setopt HIST_IGNORE_SPACE         # Do not record an entry starting with a space.
+setopt HIST_SAVE_NO_DUPS         # Do not write duplicate entries to the history file.
+
+# ==============================================================================
+# [3] TERMINAL KEYBINDINGS MATRIX
+# ==============================================================================
+bindkey -e                       # Enforce standard Emacs execution bindings
+
+# Interactive history query search bindings (Up/Down arrow parameters)
+bindkey "^[[A" up-line-or-beginning-search
+bindkey "^[[B" down-line-or-beginning-search
+
+# Standard cursor and inline manipulation mapping fixes
+bindkey "^[[3~" delete-char               # Delete key
+bindkey "^[[H" beginning-of-line          # Home key standard variant A
+bindkey "^[[1~" beginning-of-line         # Home key standard variant B
+bindkey "^[OH" beginning-of-line          # Home key alternate map
+bindkey "^[[F" end-of-line                # End key standard variant A
+bindkey "^[[4~" end-of-line               # End key standard variant B
+bindkey "^[OF" end-of-line                # End key alternate map
+
+# Cursor manipulation bindings via Ctrl key vectors
+bindkey "^[[1;5C" forward-word            # Ctrl + Right Arrow
+bindkey "^[[1;5D" backward-word           # Ctrl + Left Arrow
+bindkey "^H" backward-kill-word           # Ctrl + Backspace
+bindkey "^[[3;5~" kill-word               # Ctrl + Delete
+
+# ==============================================================================
+# [4] RUNTIME ENGINE ARCHITECTURE & PATH ROUTING
+# ==============================================================================
+# NUCLEAR PATH CLEANSER: Drops ALL Windows paths (/mnt/c/*) to stop autocomplete
+# stutters and .dll leaks, while surgically preserving only Microsoft VS Code.
+local clean_path=""
+for env_path in ${(s.:.)PATH}; do
+    if [[ "$env_path" != /mnt/c/* ]] || [[ "$env_path" =~ "Microsoft VS Code" ]]; then
+        clean_path="${clean_path}:${env_path}"
+    fi
+done
+export PATH="${clean_path#:}"
+
+# Inject local user binary paths securely
+export PATH="$HOME/.local/bin:$HOME/bin:/usr/local/bin:$PATH"
+
+# Node Package Manager (pnpm) Environment Configuration
+export PNPM_HOME="$HOME/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+# Node Version Manager (nvm) Initialization Sequence
+export NVM_DIR="$HOME/.nvm"
+if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+    source "$NVM_DIR/nvm.sh" --no-use
+    # Safely bundle companion utilities inside the activation guard
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+fi
+
+# Safe initialization for Kubernetes infrastructure contexts
+if type kubectl &>/dev/null; then
+    source <(kubectl completion zsh)
+fi
+
+# ==============================================================================
+# [5] AUTOMATED CROSS-DISTRO PACMAN SHORTCUTS
+# ==============================================================================
+# Intelligently detects and maps the host platform's package controller architecture
+if (( $+commands[nala] )); then
+    alias update='sudo nala update && sudo nala upgrade -y'
+    alias install='sudo nala install -y'
+    alias remove='sudo nala remove -y'
+    alias search='nala search'
+    alias clean='sudo nala autoremove -y && sudo nala clean'
+elif (( $+commands[apt] )); then
+    alias update='sudo apt update && sudo apt upgrade -y'
+    alias install='sudo apt install -y'
+    alias remove='sudo apt remove -y'
+    alias search='apt search'
+    alias clean='sudo apt clean && sudo apt autoremove -y'
+elif (( $+commands[dnf] )); then
+    alias update='sudo dnf upgrade --refresh -y'
+    alias install='sudo dnf install -y'
+    alias remove='sudo dnf remove -y'
+    alias search='dnf search'
+    alias clean='sudo dnf clean all'
+elif (( $+commands[nix-env] )); then
+    alias update='nix-channel --update && nix-env -u'
+    alias install='nix-env -iA'
+    alias remove='nix-env -e'
+    alias search='nix-env -qaP'
+    alias clean='nix-store --gc'
+fi
+
+# ==============================================================================
+# [6] ALIAS CONFIGURATION & TOOL ENHANCEMENTS
+# ==============================================================================
+# Base Environment Relocations
+alias reload='source ~/.zshrc'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias .3='cd ../../..'
+alias c='clear'
+alias x='exit'
+
+# High-Visibility Output Overrides
+if [[ -x "$(command -v lsd)" ]]; then
+    alias ls='lsd'
+    alias l='lsd -AF --group-directories-first'
+    alias ll='lsd -lAFh --group-directories-first'
+else
+    alias l='ls -AF --color=auto --group-directories-first'
+    alias ll='ls -lAFh --color=auto --group-directories-first'
+fi
+alias grep='grep --color=auto'
+alias diff='diff --color=auto'
+alias ip='ip -color=auto'
+if [[ -x "$(command -v batcat)" ]]; then
+    alias cat='batcat'
+fi
+
+# Defensive Safeguards against data-loss
+alias rm='rm -iv'
+alias cp='cp -iv'
+alias mv='mv -iv'
+
+# Git Tracking Shortcuts
+alias gs='git status'
+alias ga='git add'
+alias gaa='git add .'
+alias gc='git commit -m'
+alias gca='git commit -am'
+alias gp='git push'
+alias gl='git pull'
+alias glog='git log --oneline --graph --decorate --all'
+alias gco='git checkout'
+alias gb='git branch'
+
+# Local Workspace Housekeeping Operations
+alias nuke-modules='find . -name "node_modules" -type d -prune -exec rm -rf {} + && echo "node_modules deleted"'
+alias update-starship='curl -sS https://starship.rs/install.sh | sh -s -- --yes'
+
+# Enterprise Datastore Interface Hooks
+alias pg-start='sudo systemctl start postgresql'
+alias pg-stop='sudo systemctl stop postgresql'
+alias pg-status='systemctl status postgresql'
+alias redis-start='sudo systemctl start redis'
+alias redis-stop='sudo systemctl stop redis'
+
+# Runtime Engine Interfaces
+alias pn='pnpm'
+alias pni='pnpm install'
+alias pnd='pnpm dev'
+alias pnb='pnpm build'
+alias pnt='pnpm test'
+
+# Hypervisor & High-Performance Virtualization Vectors
+alias d='docker'
+alias db='docker build'
+alias dr='docker run --rm -it'
+alias dps='docker ps'
+alias dpa='docker ps -a'
+alias di='docker images'
+alias dex='docker exec -it'
+alias dlog='docker logs -f'
+alias dstopall='docker stop $(docker ps -aq)'
+alias drmall='docker rm $(docker ps -aq)'
+alias dprune='docker system prune -a --volumes -f'
+
+# Orchestration Configuration Matrices (Kubernetes / Minikube)
+alias k='kubectl'
+alias ka='kubectl apply -f'
+alias kdel='kubectl delete'
+alias kdelf='kubectl delete -f'
+alias kg='kubectl get'
+alias kgp='kubectl get pods'
+alias kgpa='kubectl get pods --all-namespaces'
+alias kgs='kubectl get svc'
+alias kgd='kubectl get deployments'
+alias kgn='kubectl get nodes'
+alias kgns='kubectl get namespaces'
+alias kd='kubectl describe'
+alias kdp='kubectl describe pod'
+alias klogs='kubectl logs -f'
+alias kex='kubectl exec -i -t'
+alias kpf='kubectl port-forward'
+alias mk='minikube'
+alias mks='minikube start'
+alias mkx='minikube stop'
+alias mkst='minikube status'
+alias mkd='minikube dashboard'
+alias mkip='minikube ip'
+alias mkenv='eval $(minikube podman-env)'
+
+# Identity Access Management Cloud Interfaces
+alias awswho='aws sts get-caller-identity'
+alias awsregion='aws configure get region'
+alias awslogin='aws sso login'
+
+# System Telemetry & Process Investigation Vectors
+alias listen='sudo ss -tunlp | grep LISTEN'
+alias port='sudo lsof -i -P -n | grep LISTEN'
+alias myip='curl -s ifconfig.me && echo ""'
+alias localip='ip -br a 2>/dev/null || ip address'
+alias pingg='ping -c 4 8.8.8.8'
+alias flushdns='command -v resolvectl &>/dev/null && resolvectl flush-caches || sudo systemd-resolve --flush-caches 2>/dev/null || echo "DNS flush skipped (systemd-resolved target absent)"'
+alias get='curl -i'
+alias mx='chmod +x'
+alias mine='sudo chown -R $USER:$USER'
+
+# Advanced Systemd Daemon & Core Telemetry Pipeline
+alias sstart='sudo systemctl start'
+alias sstop='sudo systemctl stop'
+alias srestart='sudo systemctl restart'
+alias sstatus='systemctl status'
+alias senable='sudo systemctl enable --now'
+alias sdisable='sudo systemctl disable --now'
+alias scu='systemctl --user'
+alias scustatus='systemctl --user status'
+alias jlog='journalctl -xe'
+alias jtail='journalctl -f'
+alias jcrash='journalctl -p 3 -xb'
+alias ju='journalctl -u'
+alias jclean='sudo journalctl --vacuum-time=7d'
+
+# Bare-Metal Memory / Storage Performance Inspection
+alias df='df -h'
+alias du='du -sh * | sort -h'
+alias disks='lsblk -f'
+alias free='free -h'
+alias meminfo='free -m -l -t'
+alias cpuinfo='lscpu'
+alias psg='ps aux | grep -v grep | grep -i'
+alias myps='ps -U $USER'
+alias ka9='killall -9'
+alias sysinfo='command -v fastfetch &>/dev/null && fastfetch || uname -a'
+
+# Windows Interop Tool Bridges (Bypasses path pollution cleanly)
+alias explorer='/mnt/c/WINDOWS/explorer.exe'
+alias explorer.exe='/mnt/c/WINDOWS/explorer.exe'
+alias notepad='/mnt/c/WINDOWS/System32/notepad.exe'
+alias notepad.exe='/mnt/c/WINDOWS/System32/notepad.exe'
+alias clip='/mnt/c/WINDOWS/System32/clip.exe'
+alias powershell='/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/powershell.exe'
+alias taskmgr='/mnt/c/WINDOWS/System32/taskmgr.exe'
+
+# Open web URLs or files directly inside your default Windows browser
+open-win() {
+    /mnt/c/WINDOWS/System32/cmd.exe /c start "$@"
+}
+alias open='open-win'
+
+# Environment Suspension & Execution State Changes
+alias reboot='sudo reboot'
+alias poweroff='sudo poweroff'
+alias suspend='systemctl suspend'
+
+# ==============================================================================
+# [7] CUSTOM ADVANCED AUTOMATION FUNCTIONS
+# ==============================================================================
+# Directory Generation and Instantiated Entry Pipeline
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+# Cross-Platform IDE Execution Bridge for Windows Subsystem Contexts
+agy() {
+    if [[ ! -v WSL_DISTRO_NAME ]]; then
+        echo "Error: This execution matrix is specifically optimized for WSL instances."
+        return 1
+    fi
+
+    local DISTRO=$WSL_DISTRO_NAME
+    local WIN_USER
+    # Preserves the literal space in your username by only stripping the carriage return
+    WIN_USER=$(/mnt/c/WINDOWS/System32/cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r')
+
+    if [[ -z "$WIN_USER" ]]; then
+        echo "Error: Failed to fetch host execution workspace profile identity parameters."
+        return 1
+    fi
+
+    # EXACT PATH: Mapped directly to your Windows system install
+    local AG_EXE="/mnt/c/Users/${WIN_USER}/AppData/Local/Programs/Antigravity IDE/Antigravity IDE.exe"
+    local TARGET="${1:-.}"
+    local ABS_PATH
+    ABS_PATH=$(readlink -f "$TARGET")
+
+    if [[ -f "$AG_EXE" ]]; then
+        # SURGICALLY SILENCED: > /dev/null 2>&1 swallows all logs, &! releases the prompt cleanly
+        "$AG_EXE" --remote wsl+"$DISTRO" "$ABS_PATH" > /dev/null 2>&1 &!
+    else
+        echo "Error: Could not locate Antigravity IDE Windows binary dependencies."
+        echo "Attempted search target:"
+        echo "  - $AG_EXE"
+        return 1
+    fi
+}
+
+# ==============================================================================
+# [8] CONSOLE ENGINE SHELL EVALUATION INITIALIZATION
+# ==============================================================================
+# Keep these modules strictly configured at the base of the runtime file
+if (( $+commands[starship] )); then
+    eval "$(starship init zsh)"
+fi
+
+if (( $+commands[zoxide] )); then
+    eval "$(zoxide init zsh)"
+fi
+
+# Displays environmental context layout upon terminal instance deployment
+if (( $+commands[fastfetch] )); then
+    fastfetch
+fi

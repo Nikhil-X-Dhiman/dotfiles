@@ -1,0 +1,19 @@
+# ==============================================================================
+# 🧠 DYNAMIC CROSS-PLATFORM CONTEXT FILTER
+# ==============================================================================
+
+# If the active machine is NOT Windows, completely ignore host configurations
+{{ if ne .chezmoi.os "windows" }}
+AppData/
+Documents/
+dot_wslconfig
+{{ end }}
+
+# If the active machine is NOT Linux, completely ignore shell configurations
+{{ if ne .chezmoi.os "linux" }}
+dot_zshrc
+dot_bashrc
+dot_gitconfig
+dot_zsh_plugins.txt
+dot_config/starship.toml
+{{ end }}

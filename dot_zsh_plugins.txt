@@ -1,0 +1,14 @@
+# Extra completion definitions for AWS, Docker, Kubernetes, etc.
+zsh-users/zsh-completions
+
+# Fish-like inline history auto-suggestions
+zsh-users/zsh-autosuggestions
+
+# Trains your muscle memory by reminding you of your aliases
+MichaelAquilina/zsh-you-should-use
+
+# Interactive, IDE-like tab completion menus
+marlonrichert/zsh-autocomplete
+
+# Advanced syntax highlighting for the command line (Must be last)
+zsh-users/zsh-syntax-highlighting
