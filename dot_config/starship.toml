@@ -1,0 +1,91 @@
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Inserts a blank line between shell prompts for readability
+add_newline = true
+command_timeout = 800
+
+# The Unified Layout: $fill calculates terminal width and pushes dev modules to the upper right
+format = """
+┌── $os$directory $git_branch$git_state$git_status$package$fill$nodejs$python$aws$docker_context$cmd_duration$status
+└── $character"""
+
+[fill]
+symbol = " "
+
+[character]
+success_symbol = "[➜ ](bold green)"
+error_symbol = "[➜ ](bold red)"
+vicmd_symbol = "[❮ ](bold yellow)"
+
+[os]
+disabled = false
+style = "bold white"
+
+[os.symbols]
+Windows = " "
+Ubuntu = " "
+Debian = " "
+Fedora = " "
+NixOS = " "
+
+[directory]
+truncation_length = 4
+truncate_to_repo = true
+style = "bold cyan"
+read_only = " 󰌾"
+home_symbol = " ~"
+
+[git_branch]
+symbol = " "
+style = "bold magenta"
+format = "on [$symbol$branch]($style) "
+
+[git_state]
+style = "bold yellow"
+format = '[\($state( $progress_current/$progress_total)\)]($style) '
+
+[git_status]
+style = "bold red"
+format = '([\[$all_status$ahead_behind\]]($style) )'
+conflicted = "🏳 "
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${count}⇣${count}"
+untracked = "${count}"
+staged = "󰐖${count}"
+modified = "📝${count}"
+stashed = "📦"
+renamed = "󰏫"
+deleted = "🗑"
+
+[nodejs]
+symbol = " "
+style = "bold green"
+format = "via [$symbol($version)]($style) "
+
+[python]
+symbol = " "
+style = "bold yellow"
+format = 'via [$symbol($version)(\($virtualenv\))]($style) '
+
+[aws]
+symbol = " "
+style = "bold yellow"
+format = "on [$symbol($profile)]($style) "
+
+[docker_context]
+symbol = " "
+style = "bold blue"
+format = "inside [$symbol($context)]($style) "
+
+[cmd_duration]
+min_time = 2_000
+style = "bold yellow"
+format = "took [$duration]($style) "
+
+[status]
+disabled = false
+style = "bold red"
+format = "[$symbol $code]($style)"
+symbol = "✘"
