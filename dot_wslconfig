@@ -1,0 +1,98 @@
+[wsl2]
+
+# ==============================================================================
+# 🧠 PROPERTY: memory
+# ==============================================================================
+# BASELINE DEFAULT: 50% of total host Windows RAM (For your 16GB RAM, default is 8GB)
+# AVAILABLE OPTIONS: Any specific memory string unit (e.g., 4GB, 8GB, 12GB, 512MB)
+#
+# SELECTED CONFIGURATION: 8GB
+# RATIONALE: Locks in a stable 50/50 hardware partition split. This provides an
+# ample, high-capacity sandbox for your Docker containers, pnpm builds, and backend
+# services, while guaranteeing 8GB remains completely isolated on the host layer to
+# run your Windows environment and Antigravity IDE with zero host stutter.
+# ==============================================================================
+memory=8GB
+
+
+# ==============================================================================
+# 🏎️ PROPERTY: processors
+# ==============================================================================
+# BASELINE DEFAULT: Same number of logical processors available on the host Windows OS
+# AVAILABLE OPTIONS: Any integer from 1 up to your maximum logical thread count (4)
+#
+# SELECTED CONFIGURATION: 2
+# RATIONALE: Your i7-7500U core layout has exactly 2 physical cores and 4 threads.
+# Capping WSL at 2 logical processors means that even if a runaway monorepo build,
+# Docker compilation, or infinite loop maxes out Linux CPU utilization to 100%,
+# it can only consume half your hardware capability. The remaining 2 threads stay
+# entirely free, keeping your Windows UI, web browser, and text editor snappy.
+# ==============================================================================
+processors=2
+
+
+# ==============================================================================
+# 💾 PROPERTY: swap
+# ==============================================================================
+# BASELINE DEFAULT: 25% of your assigned memory allocation on Windows, rounded up
+# AVAILABLE OPTIONS: Any memory size parameter (e.g., 2GB, 4GB, 8GB) or 0 to disable
+#
+# SELECTED CONFIGURATION: 4GB
+# RATIONALE: Establishes a fallback memory storage disk boundary. If your running
+# local datastores (PostgreSQL/Redis) or development microservices ever experience
+# a sudden, high-density traffic spike that overflows your physical 8GB RAM boundary,
+# this 4GB swap space prevents the Linux kernel from forcefully crashing your services.
+# ==============================================================================
+swap=4GB
+
+
+# ==============================================================================
+# 🌐 PROPERTY: networkingMode
+# ==============================================================================
+# BASELINE DEFAULT: nat
+# AVAILABLE OPTIONS:
+#   • nat      - Sets up an isolated virtual router with an independent internal IP address.
+#   • mirrored - Mirrors the host's actual network cards directly into Linux (shares ports).
+#   • none     - Completely cuts off the virtual interface network inside the instance.
+#
+# SELECTED CONFIGURATION: nat
+# RATIONALE: Restores the classic, isolated sandbox layer. It allows your containers
+# to boot safely without micro-managing active Windows background services, keeping
+# your project runtimes clean. If loopback tracking ever drops, you can query your
+# direct endpoint via your raw internal Linux IP.
+# ==============================================================================
+networkingMode=nat
+
+
+# ==============================================================================
+# 🛡️ PROPERTY: dnsTunneling
+# ==============================================================================
+# BASELINE DEFAULT: true (on modern Windows 11 updates) or false (older legacy instances)
+# AVAILABLE OPTIONS: true, false
+#
+# SELECTED CONFIGURATION: true
+# RATIONALE: Modifies how DNS lookups travel out of Linux by routing them via native
+# Windows API hooks. This provides bulletproof internet stability inside your Ubuntu
+# workspace—even if you connect to a strict VPN, work behind custom corporate proxies,
+# or change your active Wi-Fi connection states on the host side.
+# ==============================================================================
+dnsTunneling=true
+
+
+# ==============================================================================
+# 🧹 PROPERTY: autoMemoryReclaim
+# ==============================================================================
+# BASELINE DEFAULT: dropcache (on modern Windows 11 builds) or disabled (older builds)
+# AVAILABLE OPTIONS:
+#   • disabled  - Linux holds your project page caches forever; RAM never automatically releases.
+#   • dropcache - Drops the entire Linux storage cache instantly the second the system goes idle.
+#   • gradual   - Slowly and quietly bleeds unused cached pages back to Windows over time.
+#
+# SELECTED CONFIGURATION: gradual
+# RATIONALE: Delivers the most premium development flow. It utilizes native Linux
+# cgroups to release memory bits back to Windows smoothly over a 30-minute window.
+# This prevents the Windows `vmmem` memory ballooning issue without triggering the
+# annoying terminal micro-stutters caused by 'dropcache' clearing out your cache all at once.
+# ==============================================================================
+[experimental]
+autoMemoryReclaim=gradual
