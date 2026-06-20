@@ -1,6 +1,5 @@
 {
   "workbench.iconTheme": "material-icon-theme",
-  "workbench.colorTheme": "Night Owl",
   "editor.fontSize": 16,
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -56,7 +55,7 @@
   "search.quickAccess.preserveInput": true,
   "search.searchView.semanticSearchBehavior": "runOnEmpty",
   "search.searchView.keywordSuggestions": true,
-  "extensions.autoUpdate": "onlyEnabledExtensions",
+  "extensions.autoUpdate": false,
   "extensions.ignoreRecommendations": true,
   "terminal.integrated.confirmOnExit": "hasChildProcesses",
   "terminal.integrated.cursorBlinking": true,

@@ -56,7 +56,7 @@
   "search.quickAccess.preserveInput": true,
   "search.searchView.semanticSearchBehavior": "runOnEmpty",
   "search.searchView.keywordSuggestions": true,
-  "extensions.autoUpdate": "onlyEnabledExtensions",
+  "extensions.autoUpdate": "on",
   "extensions.ignoreRecommendations": true,
   "terminal.integrated.confirmOnExit": "hasChildProcesses",
   "terminal.integrated.cursorBlinking": true,
