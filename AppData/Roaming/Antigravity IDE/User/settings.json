@@ -199,7 +199,8 @@
   "geminicodeassist.project": "powerful-defender-b00gw",
   "aws.telemetry": false,
   "aws.cloudformation.telemetry.enabled": false,
-	"git.openRepositoryInParentFolders": "always",
-	"antigravity.marketplaceGalleryItemURL": "https://marketplace.visualstudio.com/items",
-	"antigravity.marketplaceExtensionGalleryServiceURL": "https://marketplace.visualstudio.com/_apis/public/gallery",
+  "git.openRepositoryInParentFolders": "always",
+  "antigravity.marketplaceGalleryItemURL": "https://marketplace.visualstudio.com/items",
+  "antigravity.marketplaceExtensionGalleryServiceURL": "https://marketplace.visualstudio.com/_apis/public/gallery",
+  "workbench.colorTheme": "Tokyo Night",
 }
